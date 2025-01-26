@@ -10,22 +10,24 @@ const generateToken = (user) => {
 
 // Register user
 const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
-
   try {
     const user = new User({ name, email, password });
     await user.save();
 
-    // Set cookie with user ID
-    res.cookie("sessionId", user._id, {
-      httpOnly: true, // Prevents client-side access to the cookie
-      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-      maxAge: 3600000, // 1 hour
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
     });
 
-    res.status(201).send({ user });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 3600000,
+    });
+
+    res.status(201).json({ user, token });
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -41,14 +43,14 @@ const loginUser = async (req, res) => {
       expiresIn: "1h",
     });
 
-    // Set both JWT and session cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
+      sameSite: "none",
       maxAge: 3600000,
     });
 
-    res.json({ success: true, user });
+    res.json({ user, token }); // Send token in response
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
