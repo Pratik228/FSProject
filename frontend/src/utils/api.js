@@ -1,14 +1,27 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5004/api",
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 export const authAPI = {
-  login: (data) => api.post("/auth/login", data),
+  login: async (data) => {
+    const response = await api.post("/auth/login", data);
+    api.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${response.data.token}`;
+    return response;
+  },
   register: (data) => api.post("/auth/register", data),
-  logout: () => api.get("/auth/logout"),
+  logout: async () => {
+    const response = await api.get("/auth/logout");
+    delete api.defaults.headers.common["Authorization"];
+    return response;
+  },
   getProfile: () => api.get("/auth/profile"),
   resetPassword: (data) => api.post("/auth/reset-password", data),
 };
