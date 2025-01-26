@@ -1,8 +1,11 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
+import ConfirmationModal from "../ConfirmationModal";
 
 const TaskCard = ({ task, onDelete, onStatusChange }) => {
   const [currentStatus, setCurrentStatus] = useState(task.status);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
 
   const statusColors = {
     pending: "bg-amber-100 text-amber-900",
@@ -36,6 +39,16 @@ const TaskCard = ({ task, onDelete, onStatusChange }) => {
     });
   };
 
+  const openModal = () => {
+    setTaskToDelete(task);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    await onDelete(taskToDelete._id);
+    setIsModalOpen(false);
+  };
+
   return (
     <div
       className={`card ${statusColors[currentStatus]} rounded-lg p-4 mb-2 transition-all duration-300`}
@@ -54,7 +67,7 @@ const TaskCard = ({ task, onDelete, onStatusChange }) => {
               Move to {nextStatus[currentStatus]}
             </button>
             <button
-              onClick={() => onDelete(task._id)}
+              onClick={openModal}
               className="hover:bg-opacity-20 rounded p-1"
             >
               🗑️
@@ -66,6 +79,11 @@ const TaskCard = ({ task, onDelete, onStatusChange }) => {
           <span>Updated: {formatDate(task.updatedAt)}</span>
         </div>
       </div>
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 };

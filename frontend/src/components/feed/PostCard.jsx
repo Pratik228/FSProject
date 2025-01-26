@@ -1,15 +1,24 @@
 /* eslint-disable react/prop-types */
 import { useAuth } from "../../context/AuthContext";
 import { useState } from "react";
+import ConfirmationModal from "../ConfirmationModal";
 
 const PostCard = ({ post, onDelete }) => {
   const { user } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState(null);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async () => {
     setIsDeleting(true);
-    await onDelete(id);
+    await onDelete(postToDelete._id);
     setIsDeleting(false);
+    setIsModalOpen(false);
+  };
+
+  const openModal = (post) => {
+    setPostToDelete(post);
+    setIsModalOpen(true);
   };
 
   const isNew = Date.now() - new Date(post.createdAt) < 24 * 60 * 60 * 1000;
@@ -40,7 +49,7 @@ const PostCard = ({ post, onDelete }) => {
           <div className="card-actions justify-end mt-2">
             <button
               className={`btn btn-error btn-sm ${isDeleting ? "loading" : ""}`}
-              onClick={() => handleDelete(post._id)}
+              onClick={() => openModal(post)}
               disabled={isDeleting}
             >
               {isDeleting ? "Deleting..." : "Delete"}
@@ -48,6 +57,13 @@ const PostCard = ({ post, onDelete }) => {
           </div>
         )}
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 };
