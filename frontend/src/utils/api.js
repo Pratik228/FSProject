@@ -8,19 +8,25 @@ const api = axios.create({
   },
 });
 
+// Add interceptor to handle tokens
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export const authAPI = {
   login: async (data) => {
     const response = await api.post("/auth/login", data);
-    api.defaults.headers.common[
-      "Authorization"
-    ] = `Bearer ${response.data.token}`;
+    localStorage.setItem("token", response.data.token);
     return response;
   },
   register: (data) => api.post("/auth/register", data),
   logout: async () => {
-    const response = await api.get("/auth/logout");
-    delete api.defaults.headers.common["Authorization"];
-    return response;
+    localStorage.removeItem("token");
+    return api.get("/auth/logout");
   },
   getProfile: () => api.get("/auth/profile"),
   resetPassword: (data) => api.post("/auth/reset-password", data),
