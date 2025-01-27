@@ -44,18 +44,21 @@ app.get(
 
 app.get(
   "/api/auth/google/callback",
-  passport.authenticate("google", {
-    failureRedirect: `${process.env.CORS_ORIGIN}/auth`,
-  }),
+  passport.authenticate("google", { failureRedirect: "/auth" }),
   (req, res) => {
-    const token = generateToken(req.user);
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 3600000,
-    });
-    res.redirect(`${process.env.CORS_ORIGIN}/home`);
+    try {
+      const token = generateToken(req.user);
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: 3600000,
+      });
+      res.redirect(`${process.env.CORS_ORIGIN}/home`);
+    } catch (error) {
+      console.error("Auth callback error:", error);
+      res.redirect(`${process.env.CORS_ORIGIN}/auth?error=login_failed`);
+    }
   }
 );
 
