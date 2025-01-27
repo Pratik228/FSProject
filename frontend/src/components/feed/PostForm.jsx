@@ -10,6 +10,11 @@ const PostForm = ({ onPostCreate }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!post.image) {
+      handleError({ message: "Please select an image" });
+      return;
+    }
+
     const formData = new FormData();
     formData.append("caption", post.caption);
     formData.append("image", post.image);
@@ -17,9 +22,9 @@ const PostForm = ({ onPostCreate }) => {
     try {
       const response = await postAPI.createPost(formData);
       handleSuccess("Post created");
-      onPostCreate(response.data); // Call the function to update the post list
+      onPostCreate(response.data);
       setPost({ caption: "", image: null });
-      setIsVisible(false); // Hide the form after submission
+      setIsVisible(false);
     } catch (error) {
       handleError(error);
     }

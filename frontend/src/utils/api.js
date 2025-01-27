@@ -41,6 +41,11 @@ export const taskAPI = {
 
 export const postAPI = {
   getPosts: () => api.get("/posts"),
-  createPost: (data) => api.post("/posts", data),
+  createPost: (formData) =>
+    api.post("/posts", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
   deletePost: (id) => api.delete(`/posts/${id}`),
 };
