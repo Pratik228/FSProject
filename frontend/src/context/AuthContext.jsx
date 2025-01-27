@@ -12,27 +12,37 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    checkAuth();
-  }, []);
+    const token = localStorage.getItem("token");
+    if (token) {
+      checkAuth();
+    } else {
+      setLoading(false);
+      if (window.location.pathname !== "/auth") {
+        navigate("/auth");
+      }
+    }
+  }, [navigate]);
 
   const checkAuth = async () => {
     try {
       const response = await authAPI.getProfile();
       setUser(response.data);
-    } catch (error) {
-      handleError(error);
-      navigate("/auth"); // Add this
-    } finally {
       setLoading(false);
+    } catch (error) {
+      console.log(error);
+      localStorage.removeItem("token");
+      setLoading(false);
+      navigate("/auth");
     }
   };
 
   const logout = async () => {
     try {
       await authAPI.logout();
+      localStorage.removeItem("token");
       setUser(null);
       handleSuccess("Logged out successfully");
-      navigate("/auth"); // Add this
+      navigate("/auth");
     } catch (error) {
       handleError(error);
     }
