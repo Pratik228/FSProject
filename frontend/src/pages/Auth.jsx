@@ -207,10 +207,14 @@ const Auth = () => {
             <button className="btn btn-primary w-full">
               {isLogin ? "Login" : "Register"}
             </button>
-            <button className="btn btn-outline w-full">
-              Continue with Google
-            </button>
           </form>
+          <a
+            onClick={() => authAPI.googleAuth()}
+            className="btn btn-outline w-full"
+            style={{ cursor: "pointer" }}
+          >
+            Continue with Google
+          </a>
           <p className="text-center mt-4">
             {isLogin ? "No account? " : "Have an account? "}
             <button

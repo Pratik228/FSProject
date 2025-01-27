@@ -30,6 +30,9 @@ export const authAPI = {
   },
   getProfile: () => api.get("/auth/profile"),
   resetPassword: (data) => api.post("/auth/reset-password", data),
+
+  googleAuth: () =>
+    (window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`),
 };
 
 export const taskAPI = {

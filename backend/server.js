@@ -36,19 +36,26 @@ app.use("/api/auth", authRoutes);
 
 // Google OAuth routes
 app.get(
-  "/auth/google",
+  "/api/auth/google",
   passport.authenticate("google", {
     scope: ["profile", "email"],
   })
 );
 
 app.get(
-  "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
+  "/api/auth/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: `${process.env.CORS_ORIGIN}/auth`,
+  }),
   (req, res) => {
     const token = generateToken(req.user);
-    res.cookie("sessionId", req.user._id);
-    res.redirect("/dashboard");
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 3600000,
+    });
+    res.redirect(`${process.env.FRONTEND_URL}/home`);
   }
 );
 
