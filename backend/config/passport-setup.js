@@ -12,26 +12,36 @@ passport.deserializeUser((id, done) => {
   });
 });
 
+const callbackURL =
+  process.env.NODE_ENV === "production"
+    ? `${process.env.BACKEND_URL}/auth/google/callback`
+    : "http://localhost:5004/auth/google/callback";
+
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/auth/google/callback",
+      callbackURL,
+      proxy: true,
     },
     async (accessToken, refreshToken, profile, done) => {
-      // Check if user already exists in our db
-      const existingUser = await User.findOne({ googleId: profile.id });
-      if (existingUser) {
-        return done(null, existingUser);
+      try {
+        // Check if user already exists in our db
+        const existingUser = await User.findOne({ googleId: profile.id });
+        if (existingUser) {
+          return done(null, existingUser);
+        }
+        // If not, create a new user in our db
+        const newUser = await new User({
+          googleId: profile.id,
+          name: profile.displayName,
+          email: profile.emails[0].value,
+        }).save();
+        done(null, newUser);
+      } catch (error) {
+        done(error, null);
       }
-      // If not, create a new user in our db
-      const newUser = await new User({
-        googleId: profile.id,
-        name: profile.displayName,
-        email: profile.emails[0].value,
-      }).save();
-      done(null, newUser);
     }
   )
 );
