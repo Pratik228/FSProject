@@ -14,7 +14,7 @@ passport.deserializeUser((id, done) => {
 
 const callbackURL =
   process.env.NODE_ENV === "production"
-    ? `${process.env.BACKEND_URL}/auth/google/callback`
+    ? `${process.env.BACKEND_URL}/api/auth/google/callback`
     : "http://localhost:5004/auth/google/callback";
 
 passport.use(

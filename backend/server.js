@@ -55,7 +55,7 @@ app.get(
       sameSite: "none",
       maxAge: 3600000,
     });
-    res.redirect(`${process.env.FRONTEND_URL}/home`);
+    res.redirect(`${process.env.CORS_ORIGIN}/home`);
   }
 );
 
